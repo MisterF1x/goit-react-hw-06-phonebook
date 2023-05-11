@@ -1,5 +1,3 @@
-import PropTypes from 'prop-types';
-import { useState } from 'react';
 import { FaPhoneAlt, FaUserAlt } from 'react-icons/fa';
 import { IconSize } from '../constant';
 import {
@@ -11,6 +9,9 @@ import {
 } from './Form.styled';
 import { Formik, ErrorMessage } from 'formik';
 import * as yup from 'yup';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact, getContacts } from 'redux/contactsSlice';
+import { nanoid } from 'nanoid';
 
 const validationSchema = yup.object().shape({
   name: yup.string('Enter your name').required('Name is required'),
@@ -20,16 +21,26 @@ const validationSchema = yup.object().shape({
     .required('Phone number is required'),
 });
 
-export const ContactForm = ({ onSubmit }) => {
-  const [name] = useState('');
-  const [number] = useState('');
-  const handleSubmit = (values, { resetForm }) => {
+export const ContactForm = () => {
+  const contacts = useSelector(getContacts);
+  const dispatch = useDispatch();
+
+  const handleSubmit = ({ name, number }, { resetForm }) => {
+    const contact = {
+      id: nanoid(),
+      name,
+      number,
+    };
+    const hasName = contacts.some(
+      contact => contact.name.toLowerCase() === name.toLowerCase()
+    );
+    if (hasName) return window.alert(`${name} is allready in contacts`);
+    dispatch(addContact(contact));
     resetForm();
-    onSubmit(values);
   };
   return (
     <Formik
-      initialValues={{ name, number }}
+      initialValues={{ name: '', number: '' }}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
@@ -62,8 +73,4 @@ export const ContactForm = ({ onSubmit }) => {
       </FormPhonebook>
     </Formik>
   );
-};
-
-ContactForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
 };

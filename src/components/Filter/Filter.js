@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import { IconSize } from 'components/constant';
 import {
   FilterBtn,
@@ -8,25 +7,27 @@ import {
   FilterSpan,
 } from './Filter.styled';
 import { FaRegWindowClose } from 'react-icons/fa';
+import { useDispatch, useSelector } from 'react-redux';
+import { getFilter, setValue } from 'redux/filterSlice';
 
-export const ContactsFilter = ({ value, onChange, onClick }) => {
+export const ContactsFilter = () => {
+  const dispatch = useDispatch();
+  const filter = useSelector(getFilter);
   return (
     <form>
       <FilterGroupBlock>
         <FilterLabel>
           <FilterSpan>Find contacts by name</FilterSpan>
-          <FilterInput type="text" value={value} onChange={onChange} />
+          <FilterInput
+            type="text"
+            value={filter}
+            onChange={e => dispatch(setValue(e.currentTarget.value.trim()))}
+          />
         </FilterLabel>
-        <FilterBtn onClick={onClick}>
+        <FilterBtn type="reset" onClick={() => dispatch(setValue(''))}>
           <FaRegWindowClose size={IconSize.sm} />
         </FilterBtn>
       </FilterGroupBlock>
     </form>
   );
-};
-
-ContactsFilter.propTypes = {
-  value: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
-  onClick: PropTypes.func.isRequired,
 };
